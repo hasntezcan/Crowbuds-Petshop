@@ -1,0 +1,225 @@
+/* Login Page Styles */
+
+.login-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background-light);
+}
+
+.login-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2.5rem;
+    background-color: var(--color-surface-light);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.back-link {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+}
+
+.back-link:hover {
+    color: var(--color-primary);
+}
+
+.login-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+}
+
+.auth-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-width: 72rem;
+    width: 100%;
+    background-color: var(--color-surface-light);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+@media (min-width: 1024px) {
+    .auth-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.auth-panel {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.login-panel {
+    background-color: var(--color-surface-light);
+}
+
+.register-panel {
+    background-color: #f9fafb;
+    /* Slightly darker */
+}
+
+/* Panel Header */
+.panel-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.panel-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.panel-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+/* User Type Switch */
+.user-type-switch {
+    display: flex;
+    background-color: #f3f4f6;
+    padding: 0.25rem;
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.switch-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.switch-option input {
+    position: absolute;
+    opacity: 0;
+}
+
+.switch-option:has(input:checked) {
+    background-color: var(--color-surface-light);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    color: #111827;
+}
+
+/* Auth Form */
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-input {
+    height: 3rem;
+    padding: 0 1rem;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
+.form-input:focus {
+    outline: 2px solid var(--color-primary);
+    border-color: transparent;
+}
+
+.password-input {
+    position: relative;
+}
+
+.password-input .form-input {
+    width: 100%;
+    padding-right: 2.5rem;
+}
+
+.visibility-btn {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.forgot-link {
+    color: var(--color-primary);
+    font-weight: 500;
+}
+
+.btn-full {
+    width: 100%;
+    height: 3rem;
+}
+
+.register-form .form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 640px) {
+    .register-form .form-row {
+        grid-template-columns: 1fr 1fr;
+        /* Actually current design uses 1 col inputs except maybe separate fields */
+    }
+}
+
+.span-2 {
+    grid-column: span 1;
+}
+
+@media (min-width: 640px) {
+    .span-2 {
+        grid-column: span 2;
+    }
+}
+
+.security-note {
+    margin-top: 1.5rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
