@@ -11,14 +11,14 @@ let currentFilters = {
 };
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadProducts();
-    
+
     // Search with debounce
     let searchTimeout;
     const searchInput = document.getElementById('product-search');
     if (searchInput) {
-        searchInput.addEventListener('input', function(e) {
+        searchInput.addEventListener('input', function (e) {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 currentFilters.search = e.target.value;
@@ -27,23 +27,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 500);
         });
     }
-    
+
     // Sort change
     const sortSelect = document.getElementById('sort-select');
     if (sortSelect) {
-        sortSelect.addEventListener('change', function(e) {
+        sortSelect.addEventListener('change', function (e) {
             currentFilters.sort = e.target.value;
             currentFilters.page = 1;
             loadProducts();
         });
     }
-    
+
     // Apply filters button
     const applyBtn = document.getElementById('apply-filters');
     if (applyBtn) {
         applyBtn.addEventListener('click', applyFilters);
     }
-    
+
     // Clear filters button
     const clearBtn = document.getElementById('clear-filters');
     if (clearBtn) {
@@ -55,17 +55,17 @@ function applyFilters() {
     // Get selected categories
     const categoryCheckboxes = document.querySelectorAll('.filter-category:checked');
     currentFilters.categories = Array.from(categoryCheckboxes).map(cb => cb.value);
-    
+
     // Get price range
     const minPrice = document.getElementById('min-price');
     const maxPrice = document.getElementById('max-price');
     currentFilters.min_price = minPrice ? (minPrice.value || 0) : 0;
     currentFilters.max_price = maxPrice ? (maxPrice.value || 999999) : 999999;
-    
+
     // Get in stock filter
     const inStockCheckbox = document.getElementById('filter-in-stock');
     currentFilters.in_stock = inStockCheckbox ? inStockCheckbox.checked : false;
-    
+
     currentFilters.page = 1;
     loadProducts();
 }
@@ -75,17 +75,17 @@ function clearFilters() {
     document.querySelectorAll('.filter-category').forEach(cb => cb.checked = false);
     const inStockCheckbox = document.getElementById('filter-in-stock');
     if (inStockCheckbox) inStockCheckbox.checked = false;
-    
+
     // Reset price inputs
     const minPrice = document.getElementById('min-price');
     const maxPrice = document.getElementById('max-price');
     if (minPrice) minPrice.value = 0;
     if (maxPrice) maxPrice.value = 1000;
-    
+
     // Reset search
     const searchInput = document.getElementById('product-search');
     if (searchInput) searchInput.value = '';
-    
+
     // Reset filters object
     currentFilters = {
         search: '',
@@ -96,16 +96,16 @@ function clearFilters() {
         sort: 'popularity',
         page: 1
     };
-    
+
     loadProducts();
 }
 
 function loadProducts() {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
-    
+
     grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Loading products...</p>';
-    
+
     // Build query string
     const params = new URLSearchParams();
     params.append('search', currentFilters.search);
@@ -117,7 +117,7 @@ function loadProducts() {
     params.append('in_stock', currentFilters.in_stock);
     params.append('sort', currentFilters.sort);
     params.append('page', currentFilters.page);
-    
+
     // Fetch products
     fetch(`../../api/product_search.php?${params.toString()}`)
         .then(response => response.json())
@@ -138,19 +138,19 @@ function loadProducts() {
 function displayProducts(products) {
     const grid = document.getElementById('product-grid');
     if (!grid) return;
-    
+
     if (products.length === 0) {
         grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">No products found</p>';
         return;
     }
-    
+
     grid.innerHTML = products.map(product => {
         const imagePath = '../../' + product.image_url;
         const inStock = product.stock_quantity > 0;
-        const stockBadge = inStock 
+        const stockBadge = inStock
             ? '<span class="status-badge status-instock">In Stock</span>'
             : '<span class="status-badge status-outstock">Out of Stock</span>';
-        
+
         return `
             <article class="product-card">
                 <div class="product-image" style="background-image: url('${imagePath}');"></div>
@@ -164,20 +164,22 @@ function displayProducts(products) {
                         ${stockBadge}
                     </div>
                 </div>
-                <button 
-                    class="btn btn-secondary btn-full add-to-cart-btn" 
-                    data-product-id="${product.id}"
-                    ${!inStock ? 'disabled' : ''}
-                >
-                    Add to Cart
-                </button>
+                <div class="add-to-cart-wrapper">
+                    <button 
+                        class="btn btn-primary btn-full add-to-cart-btn" 
+                        data-product-id="${product.id}"
+                        ${!inStock ? 'disabled' : ''}
+                    >
+                        Add to Cart
+                    </button>
+                </div>
             </article>
         `;
     }).join('');
-    
+
     // Attach event listeners to add-to-cart buttons
     grid.querySelectorAll('.add-to-cart-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function () {
             addToCart(this.dataset.productId);
         });
     });
@@ -186,19 +188,19 @@ function displayProducts(products) {
 function displayPagination(currentPage, totalPages) {
     const pagination = document.getElementById('pagination');
     if (!pagination) return;
-    
+
     if (totalPages <= 1) {
         pagination.innerHTML = '';
         return;
     }
-    
+
     let html = '';
-    
+
     // Previous button
     if (currentPage > 1) {
         html += `<a href="#" class="page-link" data-page="${currentPage - 1}">Previous</a>`;
     }
-    
+
     // Page numbers
     for (let i = 1; i <= totalPages; i++) {
         if (i === currentPage) {
@@ -209,17 +211,17 @@ function displayPagination(currentPage, totalPages) {
             html += `<span class="page-ellipsis">...</span>`;
         }
     }
-    
+
     // Next button
     if (currentPage < totalPages) {
         html += `<a href="#" class="page-link" data-page="${currentPage + 1}">Next</a>`;
     }
-    
+
     pagination.innerHTML = html;
-    
+
     // Attach click handlers
     pagination.querySelectorAll('.page-link[data-page]').forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             currentFilters.page = parseInt(this.dataset.page);
             loadProducts();
@@ -233,24 +235,24 @@ function addToCart(productId) {
     formData.append('action', 'add');
     formData.append('product_id', productId);
     formData.append('quantity', 1);
-    
+
     fetch('../../api/cart_operations.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Product added to cart!');
-            updateCartCount();
-        } else {
-            alert(data.message || 'Error adding to cart');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error adding to cart');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Notify.success('Product added to your cart!');
+                updateCartCount();
+            } else {
+                Notify.error(data.message || 'Failed to add product to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Notify.error('Network error. Please try again.');
+        });
 }
 
 function updateCartCount() {

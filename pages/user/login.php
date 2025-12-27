@@ -8,32 +8,26 @@ $hide_nav = true;
 $assets_path = "../../assets";
 $extra_css = $assets_path . "/css/pages/login.css";
 
-// Include DB and security
 include_once("../../includes/db_connect.php");
 include_once("../../includes/security.php");
 
 $error = "";
 $success = "";
 
-// Handle Form Submission
+// Handle form submissions
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-
-    // LOGIN Logic
     if (isset($_POST['action']) && $_POST['action'] == 'login') {
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
-        $user_type = $_POST['user_type']; // Customer or Admin
+        $user_type = $_POST['user_type'];
 
         if ($user_type == 'Customer') {
             $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             $user = $stmt->fetch();
 
-            // Use password hashing verification
             if ($user && verifyPassword($password, $user['password'])) {
-                // Harden session security
                 hardenSession();
-
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['username'] = $user['username'];
                 $_SESSION['role'] = 'customer';
@@ -47,10 +41,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->execute(['email' => $email]);
             $admin = $stmt->fetch();
 
-            // Use password hashing verification
             if ($admin && verifyPassword($password, $admin['password'])) {
                 hardenSession();
-
                 $_SESSION['admin_id'] = $admin['id'];
                 $_SESSION['admin_name'] = $admin['full_name'];
                 $_SESSION['role'] = 'admin';
@@ -62,28 +54,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 
-    // REGISTER Logic
     if (isset($_POST['action']) && $_POST['action'] == 'register') {
         $fullname = trim($_POST['fullname']);
         $email = trim($_POST['email']);
         $password = trim($_POST['password']);
         $confirm = trim($_POST['confirm_password']);
 
-        // Validate password length
         if (strlen($password) < 6) {
             $error = "Password must be at least 6 characters long.";
         } elseif ($password !== $confirm) {
             $error = "Passwords do not match.";
         } else {
-            // Check existing
             $stmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
             $stmt->execute(['email' => $email]);
             if ($stmt->fetch()) {
                 $error = "Email already registered.";
             } else {
-                // Hash password before storing
                 $hashed_password = hashPassword($password);
-
                 $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (:name, :email, :pass)");
                 if ($stmt->execute(['name' => $fullname, 'email' => $email, 'pass' => $hashed_password])) {
                     $success = "Account created! Please log in.";
@@ -96,143 +83,163 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 <!DOCTYPE html>
-<html lang="en" class="light">
+<html lang="en">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?></title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
-        rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="../../assets/css/style.css" />
-    <link rel="stylesheet" href="../../assets/css/pages/login.css" />
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/style.css">
+    <link rel="stylesheet" href="<?php echo $extra_css; ?>">
 </head>
 
-<body>
-    <div class="login-layout">
-        <header class="login-header">
-            <div class="brand-section">
-                <div class="brand-logo">
-                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
-                    </svg>
-                </div>
-                <h2 class="brand-title">Crawl Buds PetShop</h2>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-sidebar">
+            <div class="sidebar-content">
+                <a href="home.php" class="logo-link">
+                    <img src="<?php echo $assets_path; ?>/images/logo.png" alt="Logo" class="login-logo">
+                    <h2>Crawl Buds PetShop</h2>
+                </a>
+                <p class="sidebar-text">Welcome to our pet paradise! Shop quality products for your furry friends.</p>
+                <a href="shop.php" class="btn btn-ghost">← Back to Shop</a>
             </div>
-            <a href="home.php" class="back-link">← Back to shop</a>
-        </header>
+        </div>
 
-        <main class="login-content">
-            <div class="auth-container">
-                <!-- Login Panel -->
-                <div class="auth-panel login-panel">
-                    <div class="panel-header">
-                        <h2 class="panel-title">Welcome Back!</h2>
-                        <p class="panel-subtitle">Log in to your account.</p>
-                        <?php if ($error): ?>
-                            <p style="color: var(--color-danger); font-size: 0.875rem; margin-top: 0.5rem;">
-                                <?php echo $error; ?>
-                            </p>
-                        <?php endif; ?>
-                        <?php if ($success): ?>
-                            <p style="color: var(--color-success); font-size: 0.875rem; margin-top: 0.5rem;">
-                                <?php echo $success; ?>
-                            </p>
-                        <?php endif; ?>
+        <div class="login-main">
+            <?php if ($error): ?>
+                <div class="alert alert-error"><?php echo $error; ?></div>
+            <?php endif; ?>
+            <?php if ($success): ?>
+                <div class="alert alert-success"><?php echo $success; ?></div>
+            <?php endif; ?>
+
+            <!-- Login Form (Default) -->
+            <div class="form-wrapper" id="loginForm">
+                <h1>Welcome Back!</h1>
+                <p class="form-subtitle">Log in to your account.</p>
+
+                <form method="POST">
+                    <input type="hidden" name="action" value="login">
+
+                    <div class="user-type-toggle">
+                        <label class="toggle-option">
+                            <input type="radio" name="user_type" value="Customer" checked>
+                            <span>Customer</span>
+                        </label>
+                        <label class="toggle-option">
+                            <input type="radio" name="user_type" value="Admin">
+                            <span>Admin</span>
+                        </label>
                     </div>
 
-                    <form class="auth-form" method="POST">
-                        <input type="hidden" name="action" value="login">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-input" required>
+                    </div>
 
-                        <div class="user-type-switch">
-                            <label class="switch-option active">
-                                <span>Customer</span>
-                                <input type="radio" name="user_type" value="Customer" checked>
-                            </label>
-                            <label class="switch-option">
-                                <span>Admin</span>
-                                <input type="radio" name="user_type" value="Admin">
-                            </label>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" name="password" class="form-input password-input" id="loginPassword"
+                                required>
+                            <button type="button" class="password-toggle"
+                                onclick="togglePassword('loginPassword', this)">
+                                <span class="material-symbols-outlined">visibility</span>
+                            </button>
                         </div>
+                    </div>
 
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="Enter your email" class="form-input" required>
-                        </div>
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">Log In</button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" onclick="showRegister(); return false;"
+                            class="link-primary">Create one</a></p>
+                </div>
+            </div>
+
+            <!-- Register Form (Hidden by default) -->
+            <div class="form-wrapper" id="registerForm" style="display:none;">
+                <h1>Create Account</h1>
+                <p class="form-subtitle">Join us to track orders and save details.</p>
+
+                <form method="POST">
+                    <input type="hidden" name="action" value="register">
+
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" name="fullname" class="form-input" placeholder="e.g. Alex Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-input" placeholder="you@example.com" required>
+                    </div>
+
+                    <div class="form-row">
                         <div class="form-group">
                             <label>Password</label>
-                            <div class="password-input">
-                                <input type="password" name="password" placeholder="Enter your password"
-                                    class="form-input" required>
-                                <button type="button" class="visibility-btn">
+                            <div class="password-wrapper">
+                                <input type="password" name="password" class="form-input password-input"
+                                    id="registerPassword" required>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('registerPassword', this)">
                                     <span class="material-symbols-outlined">visibility</span>
                                 </button>
                             </div>
                         </div>
-
-                        <div class="form-options">
-                            <label class="checkbox-label">
-                                <input type="checkbox"> Remember me
-                            </label>
-                            <a href="#" class="forgot-link">Forgot password?</a>
+                        <div class="form-group">
+                            <label>Confirm</label>
+                            <div class="password-wrapper">
+                                <input type="password" name="confirm_password" class="form-input password-input"
+                                    id="confirmPassword" required>
+                                <button type="button" class="password-toggle"
+                                    onclick="togglePassword('confirmPassword', this)">
+                                    <span class="material-symbols-outlined">visibility</span>
+                                </button>
+                            </div>
                         </div>
-
-                        <button type="submit" class="btn btn-primary btn-full">Log In</button>
-                    </form>
-                </div>
-
-                <!-- Register Panel -->
-                <div class="auth-panel register-panel">
-                    <div class="panel-header">
-                        <h2 class="panel-title">Create Account</h2>
-                        <p class="panel-subtitle">Join us to track orders and save details.</p>
                     </div>
 
-                    <form class="auth-form register-form" method="POST">
-                        <input type="hidden" name="action" value="register">
-                        <div class="form-row">
-                            <div class="form-group span-2">
-                                <label>Full Name</label>
-                                <input type="text" name="fullname" placeholder="e.g. Alex Doe" class="form-input"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group span-2">
-                                <label>Email</label>
-                                <input type="email" name="email" placeholder="you@example.com" class="form-input"
-                                    required>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input type="password" name="password" placeholder="••••••••" class="form-input"
-                                    required>
-                            </div>
-                            <div class="form-group">
-                                <label>Confirm</label>
-                                <input type="password" name="confirm_password" placeholder="••••••••" class="form-input"
-                                    required>
-                            </div>
-                        </div>
+                    <button type="submit" class="btn btn-primary btn-full btn-lg">Create Account</button>
+                </form>
 
-                        <div class="register-footer">
-                            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
-                        </div>
-                    </form>
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" onclick="showLogin(); return false;"
+                            class="link-primary">Log in</a></p>
                 </div>
             </div>
-            <p class="security-note">We protect your data. Your connection is secure.</p>
-        </main>
+        </div>
     </div>
+
+    <script>
+        function showRegister() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+        }
+
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            const icon = button.querySelector('.material-symbols-outlined');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.textContent = 'visibility_off';
+            } else {
+                input.type = 'password';
+                icon.textContent = 'visibility';
+            }
+        }
+    </script>
 </body>
 
 </html>

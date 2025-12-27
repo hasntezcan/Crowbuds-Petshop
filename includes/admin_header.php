@@ -78,7 +78,7 @@ if (!isset($extra_css)) {
                 </div>
 
                 <div class="nav-group">
-                    <a href="#" class="nav-item">
+                    <a href="settings.php" class="nav-item <?php echo ($active_page == 'settings') ? 'active' : ''; ?>">
                         <span class="material-symbols-outlined">settings</span>
                         <span>Settings</span>
                     </a>
@@ -96,10 +96,9 @@ if (!isset($extra_css)) {
             <header class="admin-top-header">
                 <h2 class="header-title"><?php echo htmlspecialchars($page_title); ?></h2>
                 <div class="header-actions">
-                    <button class="user-menu-btn">
+                    <div class="admin-name-display">
                         <span><?php echo htmlspecialchars($_SESSION['admin_name'] ?? 'Admin'); ?></span>
-                        <span class="material-symbols-outlined">expand_more</span>
-                    </button>
+                    </div>
                     <div class="user-avatar"
                         style="background-image: url('<?php echo $assets_path; ?>/images/admin_avatar.png');"></div>
                 </div>

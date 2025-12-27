@@ -52,10 +52,15 @@ if ($is_logged_in && isset($pdo) && function_exists('getCartCount')) {
     <!-- Styles -->
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/style.css" />
     <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/layout.css" />
+    <link rel="stylesheet" href="<?php echo $assets_path; ?>/css/notifications.css" />
     <?php if (isset($extra_css)): ?>
         <link rel="stylesheet" href="<?php echo $extra_css; ?>" />
     <?php endif; ?>
+
+    <!-- Scripts -->
+    <script src="<?php echo $assets_path; ?>/js/notifications.js" defer></script>
 </head>
+
 
 <body>
     <div class="app-container">
@@ -63,26 +68,40 @@ if ($is_logged_in && isset($pdo) && function_exists('getCartCount')) {
         <header class="main-header">
             <div class="header-container">
                 <div class="brand-section">
-                    <div class="brand-logo">
-                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M44 4H30.6666V17.3334H17.3334V30.6666H4V44H44V4Z" fill="currentColor"></path>
-                        </svg>
-                    </div>
+                    <a href="home.php" class="brand-logo">
+                        <img src="<?php echo $assets_path; ?>/images/logo.png" alt="Crawl Buds Logo"
+                            style="width:50px;height:50px;object-fit:contain;">
+                    </a>
                     <h2 class="brand-title">Crawl Buds PetShop</h2>
                 </div>
 
                 <nav class="main-nav">
                     <a href="home.php" class="nav-link <?php echo ($active_page == 'home') ? 'active' : ''; ?>">Home</a>
                     <a href="shop.php" class="nav-link <?php echo ($active_page == 'shop') ? 'active' : ''; ?>">Shop</a>
-                    <a href="my_orders.php"
-                        class="nav-link <?php echo ($active_page == 'orders') ? 'active' : ''; ?>">My Orders</a>
-                    <a href="#" class="nav-link">Help</a>
+                    <a href="contact.php"
+                        class="nav-link <?php echo ($active_page == 'contact') ? 'active' : ''; ?>">Contact Us</a>
+                    <a href="about.php" class="nav-link <?php echo ($active_page == 'about') ? 'active' : ''; ?>">About
+                        Us</a>
                 </nav>
 
                 <div class="header-actions">
                     <?php if ($is_logged_in): ?>
-                        <span class="user-greeting">Hello, <?php echo htmlspecialchars($user_name); ?>!</span>
-                        <a href="logout.php" class="nav-link">Logout</a>
+                        <div class="profile-dropdown">
+                            <button class="icon-btn profile-trigger" aria-label="Profile">
+                                <span class="material-symbols-outlined">person</span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <span class="dropdown-user">Hello, <?php echo htmlspecialchars($user_name); ?>!</span>
+                                <a href="my_orders.php" class="dropdown-item">
+                                    <span class="material-symbols-outlined">receipt_long</span>
+                                    My Orders
+                                </a>
+                                <a href="logout.php" class="dropdown-item">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    Logout
+                                </a>
+                            </div>
+                        </div>
                     <?php else: ?>
                         <a href="login.php" class="icon-btn" aria-label="Account">
                             <span class="material-symbols-outlined">person</span>
