@@ -71,6 +71,22 @@ if (!isset($extra_css)) {
                         <span class="material-symbols-outlined">group</span>
                         <span>Customers</span>
                     </a>
+                    <a href="messages.php" class="nav-item <?php echo ($active_page == 'messages') ? 'active' : ''; ?>">
+                        <span class="material-symbols-outlined">mail</span>
+                        <span>Messages</span>
+                        <?php
+                        // Assuming $pdo is available for database connection
+                        // If not, you might need to include a db connection file here or ensure it's globally available.
+                        // For example: require_once '../../includes/db_connect.php';
+                        // This part of the code assumes $pdo is already defined and connected.
+                        if (isset($pdo)) {
+                            $stmt_msg = $pdo->query("SELECT COUNT(*) as cnt FROM contact_messages WHERE is_read = 0");
+                            $unread = $stmt_msg->fetch()['cnt'];
+                            if ($unread > 0)
+                                echo '<span class="nav-badge">' . $unread . '</span>';
+                        }
+                        ?>
+                    </a>
                     <a href="coupons.php" class="nav-item <?php echo $active_page === 'coupons' ? 'active' : ''; ?>">
                         <span class="material-symbols-outlined">local_offer</span>
                         <span>Coupons</span>

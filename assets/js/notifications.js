@@ -1,4 +1,3 @@
-// Custom Notification System
 const NotificationSystem = {
     container: null,
 
@@ -14,7 +13,7 @@ const NotificationSystem = {
         this.init();
 
         const {
-            type = 'success', // success, error, warning, info
+            type = 'success',
             title = '',
             message = '',
             duration = 3000,
@@ -76,5 +75,4 @@ const NotificationSystem = {
     }
 };
 
-// Expose globally
 window.Notify = NotificationSystem;

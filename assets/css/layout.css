@@ -347,7 +347,7 @@
 }
 
 .product-card form,
-.product-card .add-to-cart-btn {
+.product-card-footer {
     padding: 0 1.5rem 1.5rem 1.5rem;
 }
 
@@ -495,4 +495,5 @@
     .header-container {
         padding: 1rem;
     }
+
 }

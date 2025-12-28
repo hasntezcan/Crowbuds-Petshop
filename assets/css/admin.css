@@ -292,6 +292,7 @@
 
 .table-responsive {
     overflow-x: auto;
+    overflow-y: visible;
 }
 
 .admin-table {

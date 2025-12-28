@@ -5,15 +5,12 @@ $assets_path = "../../assets";
 $extra_css = $assets_path . "/css/pages/shop.css";
 include("../../includes/header.php");
 
-// Get categories for filter
 $categories = [];
 if (isset($pdo)) {
     $stmt = $pdo->query("SELECT * FROM categories ORDER BY name");
     $categories = $stmt->fetchAll();
 }
 ?>
-
-<!-- Page Header -->
 <div class="page-header">
     <h1>Shop All Products</h1>
     <p>Browse our complete collection of pet supplies</p>
@@ -36,7 +33,7 @@ if (isset($pdo)) {
                     <div class="accordion-content">
                         <?php foreach ($categories as $cat): ?>
                             <label class="checkbox-label">
-                                <input type="checkbox" class="filter-category" value="<?php echo $cat['id']; ?>">
+                                <input type="checkbox" name="category" value="<?php echo $cat['id']; ?>">
                                 <?php echo htmlspecialchars($cat['name']); ?>
                             </label>
                         <?php endforeach; ?>
@@ -51,9 +48,9 @@ if (isset($pdo)) {
                     </summary>
                     <div class="accordion-content">
                         <div class="price-inputs">
-                            <input type="number" id="min-price" placeholder="Min" value="0" class="form-input">
+                            <input type="number" id="minPrice" placeholder="Min" value="0" class="form-input">
                             <span>to</span>
-                            <input type="number" id="max-price" placeholder="Max" value="1000" class="form-input">
+                            <input type="number" id="maxPrice" placeholder="Max" value="1000" class="form-input">
                         </div>
                     </div>
                 </details>
@@ -85,10 +82,10 @@ if (isset($pdo)) {
         <div class="toolbar">
             <div class="search-bar">
                 <span class="material-symbols-outlined search-icon">search</span>
-                <input type="search" id="product-search" placeholder="Search for pet products..." class="search-input">
+                <input type="search" id="searchInput" placeholder="Search for pet products..." class="search-input">
             </div>
             <div class="sort-dropdown">
-                <select class="select-input" id="sort-select">
+                <select class="select-input" id="sortSelect">
                     <option value="popularity">Sort by: Popularity</option>
                     <option value="price_low">Price: Low to High</option>
                     <option value="price_high">Price: High to Low</option>
@@ -99,7 +96,7 @@ if (isset($pdo)) {
         </div>
 
         <!-- Products will be loaded here by JavaScript -->
-        <div class="product-grid" id="product-grid">
+        <div class="product-grid" id="productsContainer">
             <p>Loading products...</p>
         </div>
 

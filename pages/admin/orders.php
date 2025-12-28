@@ -88,15 +88,15 @@ $orders = $pdo->query($query)->fetchAll();
                             <div class="dropdown" style="display:inline-block; position:relative;">
                                 <button class="btn btn-sm btn-outline">Update Status</button>
                                 <div class="dropdown-content"
-                                    style="display:none; position:absolute; right:0; background:#fff; border:1px solid #ddd; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                                    style="display:none; position:absolute; right:0; background:#fff; border:1px solid #ddd; z-index:1000; box-shadow:0 2px 5px rgba(0,0,0,0.1); min-width:150px; border-radius:0.5rem;">
                                     <a href="orders.php?action=update_status&id=<?php echo $order['id']; ?>&status=shipped"
-                                        style="display:block; padding:0.5rem; text-decoration:none; color:#333;">Mark
+                                        style="display:block; padding:0.75rem 1rem; text-decoration:none; color:#333; white-space:nowrap;">Mark
                                         Shipped</a>
                                     <a href="orders.php?action=update_status&id=<?php echo $order['id']; ?>&status=delivered"
-                                        style="display:block; padding:0.5rem; text-decoration:none; color:#333;">Mark
+                                        style="display:block; padding:0.75rem 1rem; text-decoration:none; color:#333; white-space:nowrap;">Mark
                                         Delivered</a>
                                     <a href="orders.php?action=update_status&id=<?php echo $order['id']; ?>&status=cancelled"
-                                        style="display:block; padding:0.5rem; text-decoration:none; color:red;">Cancel</a>
+                                        style="display:block; padding:0.75rem 1rem; text-decoration:none; color:red; white-space:nowrap;">Cancel</a>
                                 </div>
                             </div>
                         </td>

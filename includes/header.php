@@ -96,6 +96,10 @@ if ($is_logged_in && isset($pdo) && function_exists('getCartCount')) {
                                     <span class="material-symbols-outlined">receipt_long</span>
                                     My Orders
                                 </a>
+                                <a href="settings.php" class="dropdown-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    Settings
+                                </a>
                                 <a href="logout.php" class="dropdown-item">
                                     <span class="material-symbols-outlined">logout</span>
                                     Logout

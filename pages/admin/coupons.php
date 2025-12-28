@@ -63,7 +63,7 @@ $coupons = $stmt->fetchAll();
 <?php endif; ?>
 
 <div class="admin-page-header">
-    <h1>Manage Coupons</h1>
+    <h1>Coupons</h1>
     <button class="btn btn-primary" onclick="showAddCouponModal()">+ Create Coupon</button>
 </div>
 
@@ -73,11 +73,11 @@ $coupons = $stmt->fetchAll();
             <thead>
                 <tr>
                     <th>Code</th>
-                    <th>Description</th>
+                    <th class="hide-mobile">Description</th>
                     <th>Discount</th>
-                    <th>Min Order</th>
-                    <th>Valid Period</th>
-                    <th>Usage</th>
+                    <th class="hide-mobile">Min Order</th>
+                    <th class="hide-tablet">Valid Period</th>
+                    <th class="hide-tablet">Usage</th>
                     <th>Status</th>
                     <th>Actions</th>
                 </tr>
@@ -90,9 +90,11 @@ $coupons = $stmt->fetchAll();
                         <td>$<?php echo number_format($coupon['discount_amount'], 2); ?></td>
                         <td>$<?php echo number_format($coupon['min_order_amount'], 2); ?></td>
                         <td><?php echo date('M d, Y', strtotime($coupon['start_date'])); ?> -
-                            <?php echo date('M d, Y', strtotime($coupon['end_date'])); ?></td>
+                            <?php echo date('M d, Y', strtotime($coupon['end_date'])); ?>
+                        </td>
                         <td><?php echo $coupon['times_used']; ?> /
-                            <?php echo $coupon['max_usage'] == 0 ? '∞' : $coupon['max_usage']; ?></td>
+                            <?php echo $coupon['max_usage'] == 0 ? '∞' : $coupon['max_usage']; ?>
+                        </td>
                         <td>
                             <form method="POST" style="display:inline;">
                                 <input type="hidden" name="action" value="toggle">
@@ -274,6 +276,37 @@ $coupons = $stmt->fetchAll();
         border-radius: 8px;
         padding: 1.5rem;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        width: 100%;
+        font-size: 0.875rem;
+    }
+
+    .admin-table th {
+        white-space: nowrap;
+        padding: 0.75rem 0.5rem;
+    }
+
+    .admin-table td {
+        padding: 0.75rem 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .hide-mobile {
+            display: none;
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .hide-tablet {
+            display: none;
+        }
     }
 </style>
 

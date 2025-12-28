@@ -1,60 +1,78 @@
 <?php
 /**
- * Validate coupon code
+ * Coupon validation API endpoint
  */
 header('Content-Type: application/json');
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 
 require_once(__DIR__ . '/../includes/db_connect.php');
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    echo json_encode(['valid' => false, 'message' => 'Invalid request method']);
     exit;
 }
 
-$code = strtoupper(trim($_POST['code'] ?? ''));
-$cart_total = (float) ($_POST['cart_total'] ?? 0);
+$coupon_code = trim($_POST['coupon_code'] ?? '');
+$order_total = floatval($_POST['order_total'] ?? 0);
+
+if (empty($coupon_code)) {
+    echo json_encode(['valid' => false, 'message' => 'Please enter a coupon code']);
+    exit;
+}
 
 try {
+    // Check if coupon exists and is valid
     $stmt = $pdo->prepare("
         SELECT * FROM coupons 
         WHERE code = :code 
         AND is_active = 1 
-        AND start_date <= CURDATE() 
-        AND end_date >= CURDATE()
-        AND (max_usage = 0 OR times_used < max_usage)
+        AND (valid_from IS NULL OR valid_from <= NOW())
+        AND (valid_until IS NULL OR valid_until >= NOW())
+        AND (usage_limit IS NULL OR usage_count < usage_limit)
     ");
-    $stmt->execute(['code' => $code]);
+    $stmt->execute(['code' => $coupon_code]);
     $coupon = $stmt->fetch();
 
     if (!$coupon) {
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired coupon code']);
+        echo json_encode(['valid' => false, 'message' => 'Invalid or expired coupon code']);
         exit;
     }
 
-    if ($cart_total < $coupon['min_order_amount']) {
+    // Check minimum order amount
+    if ($order_total < $coupon['min_order_amount']) {
         echo json_encode([
-            'success' => false,
-            'message' => 'Minimum order amount $' . number_format($coupon['min_order_amount'], 2) . ' required'
+            'valid' => false,
+            'message' => 'Minimum order amount is $' . number_format($coupon['min_order_amount'], 2)
         ]);
         exit;
     }
 
-    $discount = $coupon['discount_amount'];
-    $new_total = max(0, $cart_total - $discount);
+    // Calculate discount
+    $discount = 0;
+    if ($coupon['discount_type'] === 'percentage') {
+        $discount = ($order_total * $coupon['discount_amount']) / 100;
+        if ($coupon['max_discount_amount'] && $discount > $coupon['max_discount_amount']) {
+            $discount = $coupon['max_discount_amount'];
+        }
+    } else {
+        $discount = $coupon['discount_amount'];
+    }
+
+    // Store in session
+    $_SESSION['applied_coupon'] = [
+        'code' => $coupon_code,
+        'discount' => $discount,
+        'coupon_id' => $coupon['id']
+    ];
 
     echo json_encode([
-        'success' => true,
-        'message' => 'Coupon applied successfully!',
-        'coupon_id' => $coupon['id'],
-        'discount' => $discount,
-        'new_total' => $new_total
+        'valid' => true,
+        'discount_amount' => number_format($discount, 2),
+        'message' => 'Coupon applied successfully!'
     ]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Error validating coupon']);
+    error_log('Coupon validation error: ' . $e->getMessage());
+    echo json_encode(['valid' => false, 'message' => 'An error occurred']);
 }
 ?>

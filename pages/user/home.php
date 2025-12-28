@@ -17,7 +17,7 @@ include("../../includes/header.php");
             <a href="shop.php#products" class="btn btn-ghost btn-lg">Browse Products</a>
         </div>
     </div>
-    <div class="hero-image" style="background-image: url('../../assets/images/hero_cat.png');"></div>
+    <div class="hero-image" style="background-image: url('../../assets/images/hero_pets.png');"></div>
 </section>
 
 <!-- Categories Showcase -->
