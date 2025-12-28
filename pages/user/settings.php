@@ -4,7 +4,7 @@ $active_page = "settings";
 $assets_path = "../../assets";
 include("../../includes/user_guard.php");
 include("../../includes/header.php");
-include("../../includes/security.php");
+include_once("../../includes/security.php");
 
 $success = '';
 $error = '';
@@ -18,13 +18,13 @@ $user = $stmt->fetch();
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['update_profile'])) {
         // Update profile
-        $full_name = filter_input(INPUT_POST, 'full_name', FILTER_SANITIZE_STRING);
+        $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
 
-        $stmt = $pdo->prepare("UPDATE users SET full_name = ?, email = ? WHERE id = ?");
-        if ($stmt->execute([$full_name, $email, $_SESSION['user_id']])) {
+        $stmt = $pdo->prepare("UPDATE users SET username = ?, email = ? WHERE id = ?");
+        if ($stmt->execute([$username, $email, $_SESSION['user_id']])) {
             $success = 'Profile updated successfully!';
-            $_SESSION['user_name'] = $full_name;
+            $_SESSION['username'] = $username;
         } else {
             $error = 'Failed to update profile';
         }
@@ -79,9 +79,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Profile Information</h2>
             <form method="POST" class="settings-form">
                 <div class="form-group">
-                    <label for="full_name">Full Name</label>
-                    <input type="text" id="full_name" name="full_name" class="form-input"
-                        value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" class="form-input"
+                        value="<?php echo htmlspecialchars($user['username']); ?>" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email Address</label>

@@ -92,15 +92,18 @@ if ($is_logged_in && isset($pdo) && function_exists('getCartCount')) {
                             </button>
                             <div class="dropdown-menu">
                                 <span class="dropdown-user">Hello, <?php echo htmlspecialchars($user_name); ?>!</span>
-                                <a href="my_orders.php" class="dropdown-item">
+                                <a href="<?php echo file_exists('pages/user/my_orders.php') ? 'pages/user/my_orders.php' : 'my_orders.php'; ?>"
+                                    class="dropdown-item">
                                     <span class="material-symbols-outlined">receipt_long</span>
                                     My Orders
                                 </a>
-                                <a href="settings.php" class="dropdown-item">
+                                <a href="<?php echo file_exists('pages/user/settings.php') ? 'pages/user/settings.php' : 'settings.php'; ?>"
+                                    class="dropdown-item">
                                     <span class="material-symbols-outlined">settings</span>
                                     Settings
                                 </a>
-                                <a href="logout.php" class="dropdown-item">
+                                <a href="<?php echo file_exists('pages/user/logout.php') ? 'pages/user/logout.php' : 'logout.php'; ?>"
+                                    class="dropdown-item">
                                     <span class="material-symbols-outlined">logout</span>
                                     Logout
                                 </a>
