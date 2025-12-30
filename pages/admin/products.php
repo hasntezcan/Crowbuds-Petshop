@@ -24,23 +24,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Handle image upload
         $image_path = 'assets/images/product_default.png';
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $upload_dir = '../../assets/images/';
-            $file_ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $new_filename = 'product_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
-            $target_path = $upload_dir . $new_filename;
 
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
-                $image_path = 'assets/images/' . $new_filename;
+        // Debug: Check if file was uploaded
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $upload_error = $_FILES['image']['error'];
+
+            if ($upload_error === UPLOAD_ERR_OK) {
+                $upload_dir = '../../assets/images/';
+
+                // Check if directory exists and is writable
+                if (!is_dir($upload_dir)) {
+                    $error = "Upload directory does not exist: " . $upload_dir;
+                } elseif (!is_writable($upload_dir)) {
+                    $error = "Upload directory is not writable: " . $upload_dir;
+                } else {
+                    $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                    if (!in_array($file_ext, $allowed_extensions)) {
+                        $error = "Invalid file type. Allowed: " . implode(', ', $allowed_extensions);
+                    } else {
+                        $new_filename = 'product_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
+                        $target_path = $upload_dir . $new_filename;
+
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+                            $image_path = 'assets/images/' . $new_filename;
+                        } else {
+                            $error = "Failed to move uploaded file. Check permissions.";
+                        }
+                    }
+                }
+            } else {
+                // Upload error codes
+                $upload_errors = [
+                    UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+                    UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+                    UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+                    UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+                    UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+                    UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
+                ];
+                $error = "Upload error: " . ($upload_errors[$upload_error] ?? "Unknown error code: $upload_error");
             }
         }
 
-        try {
-            $stmt = $pdo->prepare("INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)");
-            $stmt->execute([$category_id, $name, $description, $price, $stock, $image_path]);
-            $success = "Product added successfully!";
-        } catch (PDOException $e) {
-            $error = "Error adding product: " . $e->getMessage();
+        if (empty($error)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO products (category_id, name, description, price, stock_quantity, image_url, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)");
+                $stmt->execute([$category_id, $name, $description, $price, $stock, $image_path]);
+                $success = "Product added successfully!";
+            } catch (PDOException $e) {
+                $error = "Error adding product: " . $e->getMessage();
+            }
         }
     } elseif ($action == 'edit') {
         $id = (int) $_POST['product_id'];
@@ -57,23 +93,55 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $image_path = $current['image_url'];
 
         // Handle new image upload
-        if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-            $upload_dir = '../../assets/images/';
-            $file_ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-            $new_filename = 'product_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
-            $target_path = $upload_dir . $new_filename;
+        if (isset($_FILES['image']) && !empty($_FILES['image']['name'])) {
+            $upload_error = $_FILES['image']['error'];
 
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
-                $image_path = 'assets/images/' . $new_filename;
+            if ($upload_error === UPLOAD_ERR_OK) {
+                $upload_dir = '../../assets/images/';
+
+                if (!is_dir($upload_dir)) {
+                    $error = "Upload directory does not exist: " . $upload_dir;
+                } elseif (!is_writable($upload_dir)) {
+                    $error = "Upload directory is not writable: " . $upload_dir;
+                } else {
+                    $file_ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                    $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                    if (!in_array($file_ext, $allowed_extensions)) {
+                        $error = "Invalid file type. Allowed: " . implode(', ', $allowed_extensions);
+                    } else {
+                        $new_filename = 'product_' . time() . '_' . rand(1000, 9999) . '.' . $file_ext;
+                        $target_path = $upload_dir . $new_filename;
+
+                        if (move_uploaded_file($_FILES['image']['tmp_name'], $target_path)) {
+                            $image_path = 'assets/images/' . $new_filename;
+                        } else {
+                            $error = "Failed to move uploaded file. Check permissions.";
+                        }
+                    }
+                }
+            } else {
+                $upload_errors = [
+                    UPLOAD_ERR_INI_SIZE => 'File exceeds upload_max_filesize',
+                    UPLOAD_ERR_FORM_SIZE => 'File exceeds MAX_FILE_SIZE',
+                    UPLOAD_ERR_PARTIAL => 'File was only partially uploaded',
+                    UPLOAD_ERR_NO_FILE => 'No file was uploaded',
+                    UPLOAD_ERR_NO_TMP_DIR => 'Missing temporary folder',
+                    UPLOAD_ERR_CANT_WRITE => 'Failed to write file to disk',
+                    UPLOAD_ERR_EXTENSION => 'File upload stopped by extension'
+                ];
+                $error = "Upload error: " . ($upload_errors[$upload_error] ?? "Unknown error code: $upload_error");
             }
         }
 
-        try {
-            $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, price = ?, stock_quantity = ?, image_url = ? WHERE id = ?");
-            $stmt->execute([$category_id, $name, $description, $price, $stock, $image_path, $id]);
-            $success = "Product updated successfully!";
-        } catch (PDOException $e) {
-            $error = "Error updating product: " . $e->getMessage();
+        if (empty($error)) {
+            try {
+                $stmt = $pdo->prepare("UPDATE products SET category_id = ?, name = ?, description = ?, price = ?, stock_quantity = ?, image_url = ? WHERE id = ?");
+                $stmt->execute([$category_id, $name, $description, $price, $stock, $image_path, $id]);
+                $success = "Product updated successfully!";
+            } catch (PDOException $e) {
+                $error = "Error updating product: " . $e->getMessage();
+            }
         }
     } elseif ($action == 'delete') {
         $id = (int) $_POST['product_id'];
@@ -98,8 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch all products
-$stmt = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.id DESC");
+// Fetch all active products only
+$stmt = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.is_active = 1 ORDER BY p.id DESC");
 $products = $stmt->fetchAll();
 
 // Fetch categories for dropdown
@@ -361,6 +429,18 @@ $categories = $pdo->query("SELECT * FROM categories ORDER BY name")->fetchAll();
         padding: 0.5rem;
         border: 1px solid #ddd;
         border-radius: 4px;
+    }
+
+    .form-input[type="file"] {
+        padding: 0.5rem;
+        cursor: pointer;
+        border: 2px dashed #ddd;
+        background-color: #f9fafb;
+    }
+
+    .form-input[type="file"]:hover {
+        border-color: var(--color-primary);
+        background-color: #f3f4f6;
     }
 
     .alert {

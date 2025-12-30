@@ -57,19 +57,8 @@ $recent_orders = $stmt->fetchAll();
 </div>
 
 <div class="dashboard-content-grid">
-    <!-- Chart Section (Static for Demo, but could be dynamic) -->
-    <div class="chart-section">
-        <div class="section-card chart-card">
-            <h3 class="card-title">Last 7 Days (Demo)</h3>
-            <div class="chart-container"
-                style="height: 15rem; display:flex; align-items:center; justify-content:center; background:#f9fafb;">
-                <p style="color:#6b7280;">Chart visualization requires JS library (e.g. Chart.js)</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Recent Orders Table -->
-    <div class="recent-orders-section">
+    <div class="recent-orders-section" style="grid-column: 1 / -1;">
         <div class="section-card">
             <h3 class="card-head">Recent Orders</h3>
             <div class="table-responsive">

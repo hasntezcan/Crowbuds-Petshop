@@ -73,6 +73,9 @@ try {
 
 } catch (PDOException $e) {
     error_log('Coupon validation error: ' . $e->getMessage());
-    echo json_encode(['valid' => false, 'message' => 'An error occurred']);
+    echo json_encode(['valid' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+} catch (Exception $e) {
+    error_log('Coupon validation error: ' . $e->getMessage());
+    echo json_encode(['valid' => false, 'message' => $e->getMessage()]);
 }
 ?>

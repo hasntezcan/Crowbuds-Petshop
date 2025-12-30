@@ -73,16 +73,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         try {
             $pdo->beginTransaction();
 
+            // CRITICAL: Check stock availability for all items BEFORE placing order
+            foreach ($cart_items as $item) {
+                $stmt_check = $pdo->prepare("SELECT stock_quantity FROM products WHERE id = ? FOR UPDATE");
+                $stmt_check->execute([$item['product_id']]);
+                $product = $stmt_check->fetch();
+
+                if (!$product) {
+                    throw new Exception("Product not found: " . $item['name']);
+                }
+
+                if ($product['stock_quantity'] < $item['quantity']) {
+                    throw new Exception("Insufficient stock for " . $item['name'] . ". Available: " . $product['stock_quantity'] . ", Requested: " . $item['quantity']);
+                }
+            }
+
             // Insert Order
             $stmt = $pdo->prepare("INSERT INTO orders (user_id, order_date, payment_method, shipping_full_name, shipping_address, shipping_phone, order_total, order_status) VALUES (?, NOW(), ?, ?, ?, ?, ?, 'Pending')");
             $stmt->execute([$user_id, $payment_method, $full_name, $address, $phone, $total]);
             $order_id = $pdo->lastInsertId();
 
-            // Insert Order Items from cart
+            // Insert Order Items and Update Stock
             $stmt_item = $pdo->prepare("INSERT INTO order_items (order_id, product_id, quantity, unit_price, line_total) VALUES (?, ?, ?, ?, ?)");
+            $stmt_stock = $pdo->prepare("UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ?");
 
             foreach ($cart_items as $item) {
+                // Insert order item
                 $stmt_item->execute([$order_id, $item['product_id'], $item['quantity'], $item['price'], $item['item_total']]);
+
+                // Deduct stock
+                $stmt_stock->execute([$item['quantity'], $item['product_id']]);
             }
 
             // Clear cart
@@ -97,7 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 
         } catch (Exception $e) {
             $pdo->rollBack();
-            $error = "Failed to place order. Please try again.";
+            $error = $e->getMessage();
         }
     }
 }
@@ -153,7 +173,7 @@ include("../../includes/header.php");
 
                     <!-- Payment Method -->
                     <section class="form-section">
-                        <h2 class="section-title">Payment Methodµ</h2>
+                        <h2 class="section-title">Payment</h2>
 
                         <div class="payment-options">
                             <label class="payment-option">
@@ -235,9 +255,11 @@ include("../../includes/header.php");
 
                     <div class="summary-totals">
                         <div class="total-row"><span>Subtotal</span>
-                            <span>$<?php echo number_format($subtotal, 2); ?></span></div>
+                            <span>$<?php echo number_format($subtotal, 2); ?></span>
+                        </div>
                         <div class="total-row"><span>Shipping</span>
-                            <span>$<?php echo number_format($shipping, 2); ?></span></div>
+                            <span>$<?php echo number_format($shipping, 2); ?></span>
+                        </div>
                         <div class="grand-total"><span>Total</span> <span>$<?php echo number_format($total, 2); ?></span>
                         </div>
                     </div>

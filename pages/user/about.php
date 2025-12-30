@@ -6,11 +6,11 @@ include("../../includes/header.php");
 
 // Team members
 $team = [
-    ['name' => 'Team Member 1', 'role' => 'Project Lead', 'email' => 'member1@example.com'],
-    ['name' => 'Team Member 2', 'role' => 'Backend Developer', 'email' => 'member2@example.com'],
-    ['name' => 'Team Member 3', 'role' => 'Frontend Developer', 'email' => 'member3@example.com'],
-    ['name' => 'Team Member 4', 'role' => 'UI/UX Designer', 'email' => 'member4@example.com'],
-    ['name' => 'Team Member 5', 'role' => 'Database Administrator', 'email' => 'member5@example.com'],
+    ['name' => 'Hasan Tezcan', 'image' => 'hasan-tezcan.png'],
+    ['name' => 'Sezai Araplarlı', 'image' => 'sezai-araplarlı.png'],
+    ['name' => 'Yiğit Kaan Pepeoğlu', 'image' => 'yigit-kaan.png'],
+    ['name' => 'Samet Aba', 'image' => 'samet-aba.png'],
+    ['name' => 'Melek Sadiki', 'image' => 'melek-sadiki.png'],
 ];
 ?>
 
@@ -60,11 +60,10 @@ $team = [
                 <?php foreach ($team as $member): ?>
                     <div class="team-card">
                         <div class="team-avatar">
-                            <span class="material-symbols-outlined">person</span>
+                            <img src="<?php echo $assets_path; ?>/images/<?php echo htmlspecialchars($member['image']); ?>"
+                                alt="<?php echo htmlspecialchars($member['name']); ?>">
                         </div>
                         <h3><?php echo htmlspecialchars($member['name']); ?></h3>
-                        <p class="team-role"><?php echo htmlspecialchars($member['role']); ?></p>
-                        <p class="team-email"><?php echo htmlspecialchars($member['email']); ?></p>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -153,12 +152,9 @@ $team = [
 
     .team-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2rem;
-    }
-
-    .team-card:nth-child(5) {
-        grid-column: 2 / 4;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 1.5rem;
+        justify-items: center;
     }
 
     .team-card {
@@ -176,19 +172,18 @@ $team = [
     }
 
     .team-avatar {
-        width: 80px;
-        height: 80px;
+        width: 120px;
+        height: 120px;
         margin: 0 auto 1rem;
-        background: var(--color-primary-100);
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        overflow: hidden;
+        border: 3px solid var(--color-primary-100);
     }
 
-    .team-avatar .material-symbols-outlined {
-        font-size: 3rem;
-        color: var(--color-primary);
+    .team-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .team-card h3 {
@@ -196,21 +191,23 @@ $team = [
         margin-bottom: 0.5rem;
     }
 
-    .team-role {
-        color: var(--color-primary);
-        font-weight: 600;
-        font-size: 0.9375rem;
-        margin-bottom: 0.5rem;
-    }
 
-    .team-email {
-        color: var(--color-gray-600);
-        font-size: 0.875rem;
+
+    @media (max-width: 1024px) {
+        .team-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
 
     @media (max-width: 768px) {
 
         .values-grid,
+        .team-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 480px) {
         .team-grid {
             grid-template-columns: 1fr;
         }

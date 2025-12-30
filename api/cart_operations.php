@@ -60,8 +60,14 @@ try {
             $existing = $stmt->fetch();
 
             if ($existing) {
-                // Update quantity
+                // Update quantity - CHECK STOCK FOR NEW TOTAL
                 $new_quantity = $existing['quantity'] + $quantity;
+
+                // Validate new total quantity against stock
+                if ($product['stock_quantity'] < $new_quantity) {
+                    throw new Exception('Insufficient stock. Available: ' . $product['stock_quantity'] . ', In cart: ' . $existing['quantity']);
+                }
+
                 $new_total = $product['price'] * $new_quantity;
                 $stmt = $pdo->prepare("UPDATE cart_items SET quantity = :quantity, item_total = :total WHERE id = :id");
                 $stmt->execute(['quantity' => $new_quantity, 'total' => $new_total, 'id' => $existing['id']]);

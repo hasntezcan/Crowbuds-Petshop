@@ -25,12 +25,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $max_usage = (int) $_POST['max_usage'];
         $admin_id = $_SESSION['admin_id'] ?? 1;
 
-        try {
-            $stmt = $pdo->prepare("INSERT INTO coupons (code, description, discount_amount, min_order_amount, start_date, end_date, max_usage, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            $stmt->execute([$code, $description, $discount, $min_order, $start_date, $end_date, $max_usage, $admin_id]);
-            $success = "Coupon created successfully!";
-        } catch (PDOException $e) {
-            $error = "Error creating coupon. Code may already exist.";
+        // Validate dates
+        if (strtotime($end_date) < strtotime($start_date)) {
+            $error = "End date cannot be before start date!";
+        } else {
+            try {
+                // Use correct column names: valid_from and valid_until
+                $stmt = $pdo->prepare("INSERT INTO coupons (code, description, discount_amount, min_order_amount, valid_from, valid_until, usage_limit, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([$code, $description, $discount, $min_order, $start_date, $end_date, $max_usage, $admin_id]);
+                $success = "Coupon created successfully!";
+            } catch (PDOException $e) {
+                $error = "Error creating coupon: " . $e->getMessage();
+            }
         }
     } elseif ($action == 'toggle') {
         $id = (int) $_POST['coupon_id'];
@@ -50,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch all coupons
+// Fetch all coupons with correct column names
 $stmt = $pdo->query("SELECT c.*, a.full_name as admin_name FROM coupons c LEFT JOIN admins a ON c.created_by_admin_id = a.id ORDER BY c.id DESC");
 $coupons = $stmt->fetchAll();
 ?>
@@ -89,11 +95,11 @@ $coupons = $stmt->fetchAll();
                         <td><?php echo htmlspecialchars($coupon['description']); ?></td>
                         <td>$<?php echo number_format($coupon['discount_amount'], 2); ?></td>
                         <td>$<?php echo number_format($coupon['min_order_amount'], 2); ?></td>
-                        <td><?php echo date('M d, Y', strtotime($coupon['start_date'])); ?> -
-                            <?php echo date('M d, Y', strtotime($coupon['end_date'])); ?>
+                        <td><?php echo date('M d, Y', strtotime($coupon['valid_from'])); ?> -
+                            <?php echo date('M d, Y', strtotime($coupon['valid_until'])); ?>
                         </td>
-                        <td><?php echo $coupon['times_used']; ?> /
-                            <?php echo $coupon['max_usage'] == 0 ? '∞' : $coupon['max_usage']; ?>
+                        <td><?php echo $coupon['usage_count'] ?? 0; ?> /
+                            <?php echo ($coupon['usage_limit'] ?? 0) == 0 ? '∞' : $coupon['usage_limit']; ?>
                         </td>
                         <td>
                             <form method="POST" style="display:inline;">
@@ -154,11 +160,11 @@ $coupons = $stmt->fetchAll();
             <div class="form-row">
                 <div class="form-group">
                     <label>Start Date *</label>
-                    <input type="date" name="start_date" class="form-input" required>
+                    <input type="date" name="start_date" id="start_date" class="form-input" required>
                 </div>
                 <div class="form-group">
                     <label>End Date *</label>
-                    <input type="date" name="end_date" class="form-input" required>
+                    <input type="date" name="end_date" id="end_date" class="form-input" required>
                 </div>
             </div>
 
@@ -186,6 +192,23 @@ $coupons = $stmt->fetchAll();
             event.target.style.display = 'none';
         }
     }
+
+    // Date validation
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form[action=""]');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                const startDate = document.getElementById('start_date').value;
+                const endDate = document.getElementById('end_date').value;
+
+                if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+                    e.preventDefault();
+                    alert('End date cannot be before start date!');
+                    return false;
+                }
+            });
+        }
+    });
 </script>
 
 <style>
