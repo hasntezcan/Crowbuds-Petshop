@@ -26,9 +26,9 @@ try {
         SELECT * FROM coupons 
         WHERE code = :code 
         AND is_active = 1 
-        AND (valid_from IS NULL OR valid_from <= NOW())
-        AND (valid_until IS NULL OR valid_until >= NOW())
-        AND (usage_limit IS NULL OR usage_count < usage_limit)
+        AND (start_date IS NULL OR start_date <= NOW())
+        AND (end_date IS NULL OR end_date >= NOW())
+        AND (max_usage = 0 OR times_used < max_usage)
     ");
     $stmt->execute(['code' => $coupon_code]);
     $coupon = $stmt->fetch();

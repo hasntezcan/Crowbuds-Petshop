@@ -26,7 +26,8 @@ include("../../includes/header.php");
         <h2>Shop by Category</h2>
         <p>Find exactly what your pet needs</p>
     </div>
-    <div class="categories-grid">
+    <div class="categories-grid"
+        style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1400px; margin: 0 auto;">
         <?php
         if (isset($pdo)) {
             $stmt = $pdo->query("SELECT * FROM categories LIMIT 6");

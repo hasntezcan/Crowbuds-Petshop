@@ -30,8 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $error = "End date cannot be before start date!";
         } else {
             try {
-                // Use correct column names: valid_from and valid_until
-                $stmt = $pdo->prepare("INSERT INTO coupons (code, description, discount_amount, min_order_amount, valid_from, valid_until, usage_limit, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                // Use actual database column names
+                $stmt = $pdo->prepare("INSERT INTO coupons (code, description, discount_amount, min_order_amount, start_date, end_date, max_usage, created_by_admin_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
                 $stmt->execute([$code, $description, $discount, $min_order, $start_date, $end_date, $max_usage, $admin_id]);
                 $success = "Coupon created successfully!";
             } catch (PDOException $e) {
@@ -95,11 +95,11 @@ $coupons = $stmt->fetchAll();
                         <td><?php echo htmlspecialchars($coupon['description']); ?></td>
                         <td>$<?php echo number_format($coupon['discount_amount'], 2); ?></td>
                         <td>$<?php echo number_format($coupon['min_order_amount'], 2); ?></td>
-                        <td><?php echo date('M d, Y', strtotime($coupon['valid_from'])); ?> -
-                            <?php echo date('M d, Y', strtotime($coupon['valid_until'])); ?>
+                        <td><?php echo date('M d, Y', strtotime($coupon['start_date'])); ?> -
+                            <?php echo date('M d, Y', strtotime($coupon['end_date'])); ?>
                         </td>
-                        <td><?php echo $coupon['usage_count'] ?? 0; ?> /
-                            <?php echo ($coupon['usage_limit'] ?? 0) == 0 ? '∞' : $coupon['usage_limit']; ?>
+                        <td><?php echo $coupon['times_used'] ?? 0; ?> /
+                            <?php echo ($coupon['max_usage'] ?? 0) == 0 ? '∞' : $coupon['max_usage']; ?>
                         </td>
                         <td>
                             <form method="POST" style="display:inline;">

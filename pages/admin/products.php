@@ -146,8 +146,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     } elseif ($action == 'delete') {
         $id = (int) $_POST['product_id'];
         try {
-            // Soft delete - set is_active to 0
-            $stmt = $pdo->prepare("UPDATE products SET is_active = 0 WHERE id = ?");
+            // Hard delete - permanently remove from database
+            $stmt = $pdo->prepare("DELETE FROM products WHERE id = ?");
             $stmt->execute([$id]);
             $success = "Product deleted successfully!";
         } catch (PDOException $e) {
@@ -166,8 +166,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 
-// Fetch all active products only
-$stmt = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.is_active = 1 ORDER BY p.id DESC");
+// Fetch all products (active first, then inactive)
+$stmt = $pdo->query("SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.is_active DESC, p.id DESC");
 $products = $stmt->fetchAll();
 
 // Fetch categories for dropdown
